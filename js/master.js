@@ -161,30 +161,72 @@ function genMove(){
     boxes[secondFix].base = dump;
     console.log("created fixtar : "+firtsFix+" n "+secondFix);
     deltaMove = deltaWidth/deltaTime;
+    if(dirMove === true){
+        dirMove = false;
+    }else{
+        dirMove = true;
+    }
 }
 
 var speed = 200;
 var isTimeMove;
 
 var midWidth;
+var dirMove = true;
+
+var time = 0;
+var counter = 3;
+var timeCounter = 0;
+var isOnMoving;
+
+var isStart = true;
+var movePass;
 
 function timeMove(){
     master.clear();
     if(boxes[firtsFix].x >= layout[(boxes[firtsFix].base)].x){
         boxes[firtsFix].y = startHeight;
         boxes[secondFix].y = startHeight;
-        genMove();
+        
+        if(timeCounter > counter){
+            isStart = false;
+            time++;
+            timeCounter = 0;
+            movePass = false;
+            reveal();
+            counter = 3 + time;
+        }else{
+
+            timeCounter++;
+            genMove();
+
+        }
+        
         console.log("time move is done");
     }else{
-        boxes[firtsFix].x += devWidth/120;
-        boxes[secondFix].x -= devWidth/120;
-        if(boxes[firtsFix].x <=  (boxes[firtsFix].x + ((boxes[secondFix].x - boxes[firtsFix].x)/2))){
-            boxes[firtsFix].y += devHeight*(0.8/100);
-            boxes[secondFix].y -= devHeight*(0.8/100);
-        }else{
-            boxes[firtsFix].y -= devHeight*(0.8/100);
-            boxes[secondFix].y += devHeight*(0.8/100);
-        }
+        
+            if(dirMove === true){
+                boxes[firtsFix].x += devWidth/120;
+                boxes[secondFix].x -= devWidth/120;
+                if(boxes[firtsFix].x <=  (boxes[firtsFix].x + ((boxes[secondFix].x - boxes[firtsFix].x)/2))){
+                    boxes[firtsFix].y += devHeight*(0.8/100);
+                    boxes[secondFix].y -= devHeight*(0.8/100);
+                }else{
+                    boxes[firtsFix].y -= devHeight*(0.8/100);
+                    boxes[secondFix].y += devHeight*(0.8/100);
+                }
+            }else{
+                boxes[firtsFix].x += devWidth/120;
+                boxes[secondFix].x -= devWidth/120;
+                if(boxes[firtsFix].x <=  (boxes[firtsFix].x + ((boxes[secondFix].x - boxes[firtsFix].x)/2))){
+                    boxes[firtsFix].y -= devHeight*(0.8/100);
+                    boxes[secondFix].y += devHeight*(0.8/100);
+                }else{
+                    boxes[firtsFix].y += devHeight*(0.8/100);
+                    boxes[secondFix].y -= devHeight*(0.8/100);
+                }
+            }
+        
     }
     console.log(boxes[firtsFix].y + " n "+ boxes[secondFix].y+ " midn: "+midWidth);
     for(i = 0; i <= boxes.length; i++ ){
@@ -192,9 +234,44 @@ function timeMove(){
     }
 }
 
+var isStop;
+
+ window.addEventListener("click",function(e){
+    var mouse = {
+        x: e.pageX,
+        y: e.pageY
+    };
+    for(i = 0; i <= boxes.length; i++){
+        if(boxes[i].x <= mouse.x && mouse.x <= boxes[i].x + layout[i].size_X &&
+                boxes[i].y <= mouse.y && mouse.y <= boxes[i].y + layout[i].size_Y){
+            console.log("TRIGGERR ON :   " + i + ",  X : "+e.pageX+",   Y : "+e.pageY);
+        }
+    }
+});
+
 
 function exactDir(){
     for(i = 0; i < boxes.length; i++){
         boxes[i].x = layout[boxes[i].base].x;
+    }
+}
+
+function reveal(){
+    if(boxes[0].y >= startHeight - layout[0].size_Y){
+        for(i = 0; i <= boxes.length; i++){
+            boxes[i].y -= devHeight*(0.8/100);
+        }
+    }
+}
+
+function deReveal(){
+    if(boxes[0].y <= startHeight - layout[0].size_Y){
+        for(i = 0; i <= boxes.length; i++){
+            boxes[i].y += devHeight*(0.8/100);
+        }
+    }else{
+        for(i = 0; i < boxes.length; i++){
+            boxes[i].y = startHeight;
+        }
     }
 }
