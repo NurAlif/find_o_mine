@@ -1,7 +1,7 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * 
+ * 
+ * 
  */
 
 var devWidth = document.documentElement.clientWidth;
@@ -75,6 +75,11 @@ function build(){
     for(i = 0; i < count; i++){
         layout[boxes.length] = new base(startWidth + (( layWidth / count ) * boxes.length));
         boxes[boxes.length] = new box(layout[boxes.length].x, layout[boxes.length].size_X, layout[boxes.length].size_Y, boxes.length );
+        if(i === 0){
+            boxes[i].content = true;
+        }else{
+            boxes[i].content = false;
+        }
     }
 };
 
@@ -110,15 +115,18 @@ var box = function(dirx, width_O, height_O,base) {
     this.height = height_O;
     this.c = master.canvas;
     this.ctx = master.canvas.getContext("2d");
+    this.content;
     this.display = function(){
+        
         this.ctx.drawImage(img, this.x, this.y, this.width,this.height);
     };
-    this.reveal = function(valAscend){
-        this.ctx.drawImage(img, this.x, valAscend, this.width, this.height);
+    this.creature = function(){
+        this.ctx.drawImage(imgJackpot, dirx, startHeight, this.width, this.height);
     };
-    this.dereveal = function(valDescend){
-        this.ctx.drawImage(img,this.x, valDescend, this.width, this.height);
+    this.reveal = function(){
+        this.ctx.drawImage(imgJackpot, this.x, startHeight, this.height, this.height);
     };
+    
 };
 
 var firtsTar,secondTar,firtsFix,SecondFix;
@@ -181,28 +189,76 @@ var isOnMoving;
 
 var isStart = true;
 var movePass;
+var gettingMove = null;
+
+var nextLevelPass;
 
 function timeMove(){
     master.clear();
     if(boxes[firtsFix].x >= layout[(boxes[firtsFix].base)].x){
-        boxes[firtsFix].y = startHeight;
-        boxes[secondFix].y = startHeight;
         
-        if(timeCounter > counter){
-            isStart = false;
-            time++;
-            timeCounter = 0;
-            movePass = false;
-            reveal();
-            counter = 3 + time;
-        }else{
-
-            timeCounter++;
-            genMove();
-
-        }
         
-        console.log("time move is done");
+            
+            if(timeCounter > counter){
+                
+                movePass = false;
+                if( ! movePass && gettingMove === null ){
+                    gettingMove = false;
+                    time++;
+                }
+                exactDir();
+                console.log("Istop##############  REVEALLING . . . .  ########################");
+                
+                if(gettingMove === false){
+                    console.log("is here "+gettingMove);
+                    if(boxes[1].y >= devHeight*(5/100)){
+                        for(i = 0; i <= boxes.length; i++){
+                            boxes[i].y -= 4;
+                            if(i === 0){
+                                boxes[i].reveal();
+
+                            }
+                            boxes[i].display();
+                        }
+                    }else{
+                        console.log("is running");
+                            gettingMove = true;
+                    }
+                }else{
+                    if(boxes[1].y <= startHeight){
+                        for(i = 0; i <= boxes.length; i++){
+                            boxes[i].y += 4;
+                            if(i === 0){
+                                boxes[i].reveal();
+
+                            }
+                            boxes[i].display();
+                        }
+                    }else{
+                        console.log("is running");
+                        counter += time;
+                        timeCounter = 0;
+                        gettingMove = null;
+                        movePass = true;
+                    }
+                    console.log("run2");
+                    
+                }
+                
+            }else{
+                movePass = true;
+            }
+        
+            if(movePass){
+                for(i = 0; i < boxes.length; i++){
+                    boxes[i].y = startHeight;
+                }
+                timeCounter++;
+                genMove();
+            }
+        
+        console.log("time move is  done "+movePass + " counter : "+counter+" time : "+time+" tico : "+timeCounter);
+    
     }else{
         
             if(dirMove === true){
@@ -244,7 +300,9 @@ var isStop;
     for(i = 0; i <= boxes.length; i++){
         if(boxes[i].x <= mouse.x && mouse.x <= boxes[i].x + layout[i].size_X &&
                 boxes[i].y <= mouse.y && mouse.y <= boxes[i].y + layout[i].size_Y){
-            console.log("TRIGGERR ON :   " + i + ",  X : "+e.pageX+",   Y : "+e.pageY);
+                if(i === 0){
+                    nextLevelPass = true;
+                }
         }
     }
 });
